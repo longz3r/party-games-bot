@@ -10,9 +10,14 @@ const client = new Client({ intents: [
 client.login(token);
 console.log("Login successful");
 
+const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
+
 const sheetdb = require("sheetdb-node")
 const sheet = sheetdb({ address: '90s3csi5c9r61' });
 const axios = require('axios');
+
+let sessionStatus = false
+let sessionId = 0
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
@@ -33,10 +38,10 @@ client.on("messageCreate", async (message) => {
                         if (data.length == 0) {
                             createUser(message.author.id, args[1])
                             message.channel.send("Tạo tài khoản thành công!")
-                            naptien(message.author.id)
+                            // naptien(message.author.id)
                             message.channel.send("Nạp thành công " + args[1] + " RTM vào tài khoản")
                         } else {
-                            naptien(message.author.id)
+                            naptien(message.author.id, args[1])
                             message.channel.send("Nạp thành công " + args[1] + " RTM vào tài khoản")
                         }
                     }, function(err){
@@ -59,9 +64,68 @@ client.on("messageCreate", async (message) => {
             } else {
                 if (typeof args[0] == "undefined") {
                     message.channel.send("VD: bet tai 69")
-                    message.channel.send("bet xiu 96")
                 } else if (args[0] == "tai" || args[0] == "xiu") {
-                    rollDice()
+                    if (sessionStatus == false) {
+                        // console.log(sessionStatus)
+                        const parsedBal = parseInt(data[0].actualBalance)
+                        if (parsedBal < args[1]) {
+                            message.channel.send("Bạn không đủ tiền để đặt cược")
+                        } else {
+                            if (sessionStatus = false) {
+                                sessionStatus = true
+                                message.channel.send(`Bắt đầu đặt cược round #${sessionId + 1}`)
+                                placeBet(args[0], args[1], message.author.id)
+                            }else if (sessionStatus = true) {
+                                placeBet(args[0], args[1], message.author.id)
+                                if (args[0] == "tai") {
+                                    message.channel.send(`<@${message.author.id}> đã đặt cược ${args[1]} RTM vào tài`)
+                                } else if (args[0] == "xiu") {
+                                    message.channel.send(`<@${message.author.id}> đã đặt cược ${args[1]} RTM vào xỉu`)
+                                }
+                                
+                                setTimeout(() => {
+                                    message.channel.send("Còn 15 giây để đặt cược")
+                                }, 15000)
+                                setTimeout(() => {
+                                    message.channel.send("Còn 5 giây để đặt cược")
+                                }, 25000)
+
+                                setTimeout(() => {
+                                    dice[0] = parseInt(Math.floor(Math.random() * 6)) + 1;
+                                    dice[1] = parseInt(Math.floor(Math.random() * 6)) + 1;
+                                    dice[2] = parseInt(Math.floor(Math.random() * 6)) + 1;
+
+                                    let total = dice[0] + dice[1] + dice[2]
+                                    let result = null
+                                    if (total >= 4 && total <= 10) {
+                                        result = "xiu"
+                                    } else if (total >= 11 && total <= 17) {
+                                        result = "tai"
+                                    }
+
+                                    message.channel.send("🎲1: " + spoiler(dice[0]))
+                                    message.channel.send("🎲2: " + spoiler(dice[1]))
+                                    message.channel.send("🎲3: " + spoiler(dice[2]))
+
+                                    setTimeout(() => {
+                                        if (result == "tai") {
+                                            message.channel.send(`Kết quả: Tài`)
+                                            message.channel.send(`${taiPeople.length} người đã thắng`)
+                                        } else if (result == "xiu") {
+                                            message.channel.send(`Kết quả: Xỉu`)
+                                            message.channel.send(`${xiuPeople.length} người đã thắng`)
+                                        }
+                                            sessionStatus = false ;
+                                            taiPeople.length = 0;
+                                            taiMoney.length = 0;
+                                            xiuPeople.length = 0;
+                                            xiuMoney.length = 0;
+                                            dice.length = 0;
+                                    }, 7500)
+                                }, 30000)
+                            }
+                        }
+                    }
                 } 
             }
         }, function(err){
@@ -69,14 +133,26 @@ client.on("messageCreate", async (message) => {
         });
     }
     if (message.content == "roll") {
-        rollDice()
+        naptien(message.author.id, 100)
     }
 });
 
-function naptien(userID) {
+function naptien(userID, amount) {
     sheet.read({ search: { userId: userID } }).then(function(rawData) {
-        let data = JSON.parse(rawData)
-        
+        let processedData = JSON.parse(rawData)
+        const parsedBal = parseInt(processedData[0].balance)
+        const parsedAmount = parseInt(amount)
+        const newBalance =  parsedBal + parsedAmount
+        console.log(typeof newBalance)
+        sheet.update(
+            'userId', // column name
+            userID, // value to search for
+            { 'balance': newBalance } // object with updates
+        ).then(function (data) {
+            console.log(data);
+        }, function (err) {
+            console.log(err);
+        });
     }, function(err){
         console.log(err);
     });
@@ -95,21 +171,27 @@ function createUser(userID, preBal) {
     });
 }
 
+let dice = [];
+let taiPeople = []
+let taiMoney = []
+let xiuPeople = []
+let xiuMoney = []
 function placeBet(choice, money, userId) {
-    
+    if (choice == "tai") {
+        taiPeople[taiPeople.length] = [userId]
+        taiMoney[taiMoney.length] = [money]
+    } else if (choice == "xiu") {
+        xiuPeople[xiuPeople.length] = [userId]
+        xiuMoney[xiuMoney.length] = [money]
+    }
 }
 
-function rollDice() {
-    axios.get('https://www.random.org/integers/?num=1&min=1&max=6&col=1&base=10&format=plain&rnd=new')
-        .then(function (response) {
-    // handle success
-    console.log(typeof response.data);
-    })
-    .catch(function (error) {
-    // handle error
-    console.log(error);
-    })
-    .then(function () {
-    // always executed
-    });
+function checkSession() {
+    console.log("tai: "+taiPeople)
+    console.log(taiMoney)
+    console.log("xiu: "+xiuPeople)
+    console.log(xiuMoney)
+    console.log(sessionStatus)
 }
+
+setInterval(() => { checkSession() }, 1000);
