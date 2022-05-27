@@ -2,6 +2,5 @@
     "token": "OTU0MzU1OTQ2MDY1Mzc1MjQy.GKi-6n.MOhHmY5vIgzBZY-H9_3yWc7g5IRANpzhPdCS68",
     "guildID": "750233081528582164",
     "clientID": "954355946065375242",
-    "sheet_id": "1pIwal9Pz0JQPz0eTDKiqGqTUsCQVdkH-I1rYpilr3G4",
-    "gg_credentials": "./secret.json"
+    "redisURL": "redis://default:longzer08092008@redis-10815.c299.asia-northeast1-1.gce.cloud.redislabs.com:10815"
 }
