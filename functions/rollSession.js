@@ -1,23 +1,32 @@
-const sessionDb = require("sheetdb-node")
-const session = sessionDb({ address: 'ihbzrsj20kcuh' })
-
 function createSession() {
-    session.endpoint('count').then(function(rawCount) {
-        count = JSON.parse(rawCount)
-        sheet.create({ id: count.rows+1, unixTime: unixTime, result: undefined, taiId: [], taiMoney: [], xiuId: [], xiuMoney: []}).then(function(data) {
-            console.log(data);
-        }, function(err){
-            console.log(err);
-        });
-    }, function(error){
-        console.log(error);
-    });
+
 }
 
 function rollDice() {
     return parseInt(Math.floor(Math.random() * 6)) + 1;
 }
 
+function bet() {
 
+}
 
-module.exports = { createSession, rollDice }
+async function rollDice() {
+    let dice = []
+    dice[0] = parseInt(Math.floor(Math.random() * 6)) + 1;
+    dice[1] = parseInt(Math.floor(Math.random() * 6)) + 1;
+    dice[2] = parseInt(Math.floor(Math.random() * 6)) + 1;
+    return dice;
+}
+
+function calculateResult(dice) {
+    let total = dice[0] + dice[1] + dice[2]
+    let result = null
+    if (total >= 4 && total <= 10) {
+        result = "xiu"
+    } else if (total >= 11 && total <= 17) {
+        result = "tai"
+    }
+    return result;
+}
+
+module.exports = { createSession, rollDice, calculateResult }

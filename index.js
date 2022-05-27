@@ -1,84 +1,184 @@
 // basic shit
-const { token, guildId, clientId, sheet_id, gg_credentials } = require('./config.json');
-const { Client, Intents } = require('discord.js');
+const config = require('./config.json');
+const { Client, Intents, BaseGuildEmojiManager } = require('discord.js');
 const client = new Client({ intents: [
     Intents.FLAGS.GUILDS,
     Intents.FLAGS.GUILD_MESSAGES,
     // Intents.FLAGS.GUILD_MEMBERS,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 ] });
-client.login(token);
-console.log("Login successful");
+client.login(config.token);
+
+const redisDB = require('redis');
+const redis = redisDB.createClient({
+    url: config.redisURL
+});
+
+client.on('ready', async () => {
+    console.log("Ready!");
+    await redis.connect()
+})
 
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
 
-const sheetdb = require("sheetdb-node")
-const sessionDb = require("sheetdb-node")
-const sheet = sheetdb({ address: '90s3csi5c9r61' });
-const session = sessionDb({ address: 'ihbzrsj20kcuh' })
-const axios = require('axios');
+
+redis.on('error', (err) => console.log('Redis Client Error', err));
 
 const userInteraction = require('./functions/userInteraction.js');
-const { rollDice, createSession } = require("./functions/rollSession.js");
-
-let dice = []
+const vi = require('./languages/vietnamese.js');
+const en = require('./languages/english.js');
+const { rollDice, calculateResult } = require("./functions/rollSession.js");
 
 const unixTime = Math.floor(Date.now() / 1000);
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-    if (message.content.startsWith("rtm.send") && message.channelId == "750350048730153081") {
-        let args = message.content.split(/\s+/);
-        args.shift();
-        console.log(args)
-        if (args[0] == "<@965473856628342814>") {
-            // message.reply("good")
-            const filter = (reaction, user) => user.id === '916225084698550314';
-            const collector = message.createReactionCollector({ filter, time: 5_000 });
-            collector.on('collect', r => {
-                // console.log(`Collected ${r.emoji.name}`)
-                if (r.emoji.name == "✅" && args.length >= 2) {
-                    sheet.read({ search: { userId: message.author.id } }).then(function(rawData) {
-                        // console.log(data);
-                        let data = JSON.parse(rawData)
-                        if (data.length == 0) {
-                            userInteraction.createUser(message.author.id, args[1])
-                            message.channel.send("Tạo tài khoản thành công!")
-                            // naptien(message.author.id)
-                            message.channel.send("Nạp thành công " + args[1] + " RTM vào tài khoản")
+    if (message.content.startsWith("rtm.send")) {
+            var userLanguage = await userInteraction.getLanguage(message.author.id);
+            let args = message.content.split(/\s+/);
+            args.shift();
+            //args processing
+            var processedArgs = []
+            if (args[0] == "<@965473856628342814>") {
+                processedArgs[0] = "<@965473856628342814>"
+                processedArgs[1] = args[1]
+            } else if (args[1] == "<@965473856628342814>") {
+                processedArgs[0] = "<@965473856628342814>"
+                processedArgs[1] = args[0]
+            }
+
+            if (processedArgs[0] == "<@965473856628342814>") {
+                let rtmBalance = await userInteraction.getBalance(message.author.id);
+                const filter = (reaction, user) => user.id === '916225084698550314';
+                const collector = message.createReactionCollector({ filter, time: 5_000 });
+                collector.on('collect', reaction => {
+                    if (reaction.emoji.name == "✅" && args.length >= 2) {
+                        if (rtmBalance == null) {
+                            userInteraction.createUser(message.author.id, processedArgs[1])
+                            if (userLanguage == "vi") {
+                                message.channel.send(vi.createUser(processedArgs[1]))
+                            } else {
+                                message.channel.send(en.createUser(processedArgs[1]))
+                            }
                         } else {
-                            userInteraction.naptien(message.author.id, args[1])
-                            message.channel.send("Nạp thành công " + args[1] + " RTM vào tài khoản")
+                            userInteraction.naptien(message.author.id, processedArgs[1])
+                            if (userLanguage == "vi") {
+                                let newBalance = parseInt(rtmBalance) + parseInt(processedArgs[1])
+                                message.channel.send(vi.napTien(processedArgs[1], newBalance))
+                            } else {
+                                let newBalance = parseInt(rtmBalance) + parseInt(processedArgs[1])
+                                message.channel.send(en.napTien(processedArgs[1], newBalance))
+                            }
                         }
-                    }, function(err){
-                        console.log(err);
-                    });
-                } else {
-                    message.channel.send("you fking broke haha!")
-                }
-            });
-            // collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+                    }
+                });
+            }
+    }
+    if (message.content.includes("pg.bal")) {
+        let userLanguage = await userInteraction.getLanguage(message.author.id);
+        if (await userInteraction.getBalance(message.author.id) == null) {
+                message.channel.send(`Account not found\nYou can create account by using: ${bold("rtm.send <@965473856628342814> <amount>")}`)
+        } else {
+            if (userLanguage == "vi") {
+                message.reply(vi.balance(await userInteraction.getBalance(message.author.id)))
+            } else {
+                message.reply(en.balance(await userInteraction.getBalance(message.author.id)))
+            }
         }
     }
-    if (message.content.startsWith("bet") && message.channelId == "750350048730153081") {
+    if (message.content.startsWith("pg.set")) {
         let args = message.content.split(/\s+/);
         args.shift();
-        sheet.read({ search: { userId: message.author.id } }).then(function(rawData) {
-            let data = JSON.parse(rawData)
-            if (data.length == 0) {
-                message.channel.send("Bạn chưa có tài khoản!")
-            } else {
-                if (typeof args[0] == "undefined") {
-                    message.channel.send(blockQuote("bet <lựa chọn> <số lượng> \nVD: bet tai 69\n        bet xiu 96"))
+        switch (args[0]) {
+            case "language":
+                if (args[1] == "vi") {
+                    userInteraction.setLanguage(message.author.id, "vi")
+                    message.reply("Ngôn ngữ đã được thay đổi thành tiếng Việt")
+                } else if (args[1] == "en") {
+                    userInteraction.setLanguage(message.author.id, "en")
+                    message.reply("Language has been changed to English")
                 }
-            } 
-        })
+                break;
+        }
     }
-    if (message.content.includes("tx.bal")) {
-        sheet.read({ search: { userId: message.author.id } }).then(function(rawData) {
-            let processedData = JSON.parse(rawData)
-            const parsedBal = parseInt(processedData[0].actualBalance)
-            message.channel.send("Số dư của bạn là: " + parsedBal + " RTM")
-        })
+    if (message.content.startsWith("pg.bet")) {
+        var userLanguage = await userInteraction.getLanguage(message.author.id);
+        let args = message.content.split(/\s+/);
+        args.shift();
+        //args processing
+        var processedBetArgs = []
+        if (args[0] == "tai" || args[0] == "xiu") {
+            processedBetArgs[0] = args[0]
+            processedBetArgs[1] = args[1]
+        } else if (args[1] == "tai" || args[1] == "xiu") {
+            processedBetArgs[0] = args[1]
+            processedBetArgs[1] = args[0]
+        }
+        console.log(processedBetArgs[1])
+        if (isNaN(processedBetArgs[1])) {
+            message.channel.send("dit con me may nhap du so tien vao")
+        } else {
+        if (processedBetArgs[1] > parseInt(await userInteraction.getBalance(message.author.id))) {
+            if (userLanguage == "vi") {
+                message.channel.send(vi.balanceNotEnough(await userInteraction.getBalance(message.author.id)))
+            } else if (userLanguage == "en") {
+                message.channel.send(en.balanceNotEnough(await userInteraction.getBalance(message.author.id)))
+            }
+            } else {
+                let dice = []
+
+                message.channel.send(`${bold(`Round ${await redis.GET("round")}`)}`)
+                redis.INCRBY("round", 1)
+                dice[0] = parseInt(Math.floor(Math.random() * 6)) + 1;
+                dice[1] = parseInt(Math.floor(Math.random() * 6)) + 1;
+                dice[2] = parseInt(Math.floor(Math.random() * 6)) + 1;
+                console.log(dice)
+                message.channel.send(`🎲1: ${spoiler(dice[0])}\n🎲2: ${spoiler(dice[1])}\n🎲3: ${spoiler(dice[2])}`)
+                
+                let total = dice[0] + dice[1] + dice[2]
+                let result = null
+                if (total >= 3 && total <= 10) {
+                    result = "xiu"
+                } else if (total >= 11 && total <= 18) {
+                    result = "tai"
+                }
+
+                let balance = parseInt(await userInteraction.getBalance(message.author.id))
+                setTimeout(() => {
+                    if (result == "tai") {
+                        if (userLanguage == "vi") {
+                            message.channel.send("🎲Kết quả: " + bold("Tài"))
+                        } else if (userLanguage == "en") {
+                            message.channel.send("🎲Result: " + bold("Tai"))
+                        }
+                    } else if (result == "xiu") {
+                        if (userLanguage == "vi") {
+                            message.channel.send("🎲Kết quả: " + bold("Xỉu"))
+                        } else {
+                            message.channel.send("🎲Result: " + bold("Xiu"))
+                        }
+                    }
+                    if (processedBetArgs[0] == result) {
+                        redis.HINCRBY(message.author.id, "rtmBalance", parseInt(processedBetArgs[1]))
+                        redis.HINCRBY(message.author.id, "totalWinning", parseInt(processedBetArgs[1]))
+                        redis.HINCRBY(message.author.id, "exp", 5)
+                        if (userLanguage == "vi") {
+                            message.reply(vi.betWin(processedBetArgs[1], balance + parseInt(processedBetArgs[1])))
+                        } else {
+                            message.reply(en.betWin(processedBetArgs[1], balance + parseInt(processedBetArgs[1])))
+                        }
+                    } else {
+                        redis.HINCRBY(message.author.id, "rtmBalance", parseInt(processedBetArgs[1]) * -1)
+                        redis.HINCRBY(message.author.id, "totalWinning", parseInt(processedBetArgs[1]) * -1)
+                        redis.HINCRBY(message.author.id, "exp", 2)
+                        if (userLanguage == "vi") {
+                            message.reply(vi.betLose(processedBetArgs[1], balance - parseInt(processedBetArgs[1])))
+                        } else  {
+                            message.reply(en.betLose(processedBetArgs[1], balance - parseInt(processedBetArgs[1])))
+                        }
+                    }
+                }, 5000);
+            }
+        }
     }
 });

@@ -1,38 +1,43 @@
-const sheetdb = require("sheetdb-node")
-const sheet = sheetdb({ address: '90s3csi5c9r61' });
+const config = require("../config.json")
+const redisDB = require('redis');
+const redis = redisDB.createClient({
+    url: config.redisURL
+});
+var executed = false;
+async function connectRedisDB() {
+        if (!executed) {
+            executed = true;
+            await redis.connect()
+        }
+}
+connectRedisDB()
 
-function createUser(userID, preBal) {
-    sheet.endpoint('count').then(function(rawCount) {
-        count = JSON.parse(rawCount)
-        sheet.create({ id: count.rows+1, userId: userID, balance: preBal, withdrawal:0, actualBalance: `=C${count.rows+2}-D${count.rows+2}`}).then(function(data) {
-            console.log(data);
-        }, function(err){
-            console.log(err);
-        });
-    }, function(error){
-        console.log(error);
-    });
+async function createUser(userID, preBal) {
+    const data = {
+        exp: 0,
+        language: "en",
+        rtmBalance: preBal,
+        coinBalance: 0,
+        totalWinning: 0,
+        totalBet: 0,
+    }
+    await redis.HSET(userID, data);
 }
 
-function naptien(userID, amount) {
-    sheet.read({ search: { userId: userID } }).then(function(rawData) {
-        let processedData = JSON.parse(rawData)
-        const parsedBal = parseInt(processedData[0].balance)
-        const parsedAmount = parseInt(amount)
-        const newBalance =  parsedBal + parsedAmount
-        console.log(typeof newBalance)
-        sheet.update(
-            'userId', // column name
-            userID, // value to search for
-            { 'balance': newBalance } // object with updates
-        ).then(function (data) {
-            console.log(data);
-        }, function (err) {
-            console.log(err);
-        });
-    }, function(err){
-        console.log(err);
-    });
+async function naptien(userID, amount) {
+    await redis.HINCRBY(userID, "rtmBalance", amount)
 }
 
-module.exports = { createUser, naptien }
+async function getBalance(userID) {
+    return await redis.HGET(userID, "rtmBalance");
+}
+
+async function getLanguage(userID) {
+    return await redis.HGET(userID, "language");
+}
+
+async function setLanguage(userID, language) {
+    await redis.HSET(userID, "language", language);
+}
+
+module.exports = { createUser, naptien, getBalance, getLanguage, setLanguage }
