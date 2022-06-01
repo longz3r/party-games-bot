@@ -20,6 +20,7 @@ async function createUser(userID, preBal) {
         coinBalance: 0,
         totalWinning: 0,
         totalBet: 0,
+        lastUserCommand: 0,
     }
     await redis.HSET(userID, data);
 }
@@ -40,4 +41,8 @@ async function setLanguage(userID, language) {
     await redis.HSET(userID, "language", language);
 }
 
-module.exports = { createUser, naptien, getBalance, getLanguage, setLanguage }
+async function getExp(userID) {
+    return await redis.HGET(userID, "exp");
+}
+
+module.exports = { createUser, naptien, getBalance, getLanguage, setLanguage, getExp }

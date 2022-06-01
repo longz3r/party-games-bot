@@ -1,0 +1,29 @@
+{
+    "name": "settings",
+    "type": 1,
+    "description": "Configure your personal settings",
+    "options": [
+        {
+            "name": "language",
+            "description": "Change your preferred language",
+            "type": 1,
+            "options": [
+                {
+                    "name": "language",
+                    "description": "New language",
+                    "type": 3,
+                    "choices": [
+                        {
+                            "name": "vi",
+                            "value": "vi"
+                        },
+                        {
+                            "name": "en",
+                            "value": "en"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

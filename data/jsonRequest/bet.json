@@ -1,0 +1,37 @@
+{
+    "name": "bet",
+    "type": 1,
+    "description": "Place your bet",
+    "options": [
+        {
+            "name": "choice",
+            "description": "Choice you want to place your bet in",
+            "type": 3,
+            "required": true,
+            "choices": [
+                {
+                    "name": "tai",
+                    "value": "tai"
+                },
+                {
+                    "name": "xiu",
+                    "value": "xiu"
+                },
+                {
+                    "name": "chan",
+                    "value": "chan"
+                },
+                {
+                    "name": "le",
+                    "value": "le"
+                }
+            ]
+        },
+        {
+            "name": "amount",
+            "description": "Amount you want to bet",
+            "type": 4,
+            "required": true
+        }
+    ]
+}
