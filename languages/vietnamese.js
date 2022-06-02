@@ -2,7 +2,7 @@ const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = 
 const { MessageEmbed } = require('discord.js');
 
 function createUser(amount) {
-    return (`Tài khoản đã được tạo với số tiền ban đầu là ${amount} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@965473856628342814> <số tiền>")}`)
+    return (`Tài khoản đã được tạo với số tiền ban đầu là ${amount} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@954355946065375242> <số tiền>")}`)
 }
 
 function napTien(amount, newBalance) {
@@ -14,7 +14,7 @@ function balance(balance) {
 }
 
 function balanceNotEnough(currentBalance) {
-    return (`Số dư tài khoản của bạn không đủ để thực hiện. Bạn đang có ${bold(currentBalance)} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@965473856628342814> <số tiền>")}`)
+    return (`Số dư tài khoản của bạn không đủ để đặt cược. Bạn đang có ${bold(currentBalance)} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@954355946065375242> <số tiền>")}`)
 }
 
 function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {

@@ -13,15 +13,7 @@ function balance(balance) {
 }
 
 function balanceNotEnough(currentBalance) {
-    return (`You don't have enough balance to bet. Your current balance is ${bold(currentBalance)} RTM\nYou can add balance to account by using: ${bold("rtm.send <@965473856628342814> <amount>")}`)
-}
-
-function betWin(amount, newBalance) {
-    return (`You won ${bold(amount)} RTM\nYour current balance is ${bold(newBalance)} RTM`)
-}
-
-function betLose(amount, newBalance) {
-    return (`You lost ${bold(amount)} RTM\nYour current balance is ${bold(newBalance)} RTM`)
+    return (`You don't have enough balance to place bet. Your current balance is ${bold(currentBalance)} RTM\nYou can add balance to account by using: ${bold("rtm.send <@954355946065375242> <amount>")}`)
 }
 
 function timeout(lastMessage, currentTime) {

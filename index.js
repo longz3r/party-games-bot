@@ -10,6 +10,8 @@ const client = new Client({ intents: [
 client.login(config.token);
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
 
+const fs = require('fs')
+
 //database
 const redisDB = require('redis');
 const redis = redisDB.createClient({
@@ -53,7 +55,7 @@ client.on("messageCreate", async (message) => {
                 processedArgs[1] = args[0]
             }
 
-            if (processedArgs[0] == "<@965473856628342814>") {
+            if (processedArgs[0] == "<@965473856628342814>" || processedArgs[0] == "<@954355946065375242>") {
                 let rtmBalance = await userInteraction.getBalance(message.author.id);
                 const filter = (reaction, user) => user.id === '916225084698550314';
                 const collector = message.createReactionCollector({ filter, time: 5_000 });
@@ -82,7 +84,15 @@ client.on("messageCreate", async (message) => {
                 });
             }
     }
-
+    if (message.channel.id == "981847789841547305") {
+        let args = message.content.split(/\s+/);
+        content = args.join(" ");
+        if (args.length == 2 && args[0].length == 4) {
+            fs.writeFile('F:/coding/gt-autoclick/worldlist.txt', content, { flag: 'a' }, err => {console.log(err)});
+            fs.writeFile('F:/coding/gt-autoclick/worldlist.txt', "\n", { flag: 'a' }, err => {console.log(err)});
+            message.delete()
+        }
+    }
     if (message.content.startsWith("pg")) {
         var unixTime = Math.floor(Date.now());
         var lastUserCommand = timeout.get(message.author.id);
