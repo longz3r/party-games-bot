@@ -27,6 +27,15 @@ client.on('ready', async () => {
 
 redis.on('error', (err) => console.log('Redis Client Error', err));
 
+//date
+let date_ob = new Date();
+let date = ("0" + date_ob.getDate()).slice(-2);
+let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+let year = date_ob.getFullYear();
+let hours = date_ob.getHours();
+let minutes = date_ob.getMinutes();
+let seconds = date_ob.getSeconds();
+
 //import function
 const userInteraction = require('./functions/userInteraction.js');
 const vi = require('./languages/vietnamese.js');
@@ -86,10 +95,11 @@ client.on("messageCreate", async (message) => {
     }
     if (message.channel.id == "981847789841547305") {
         let args = message.content.split(/\s+/);
-        content = args.join(" ");
+        let content = args.join(" ") + "\n";
+        let AllContent = `${message.author.tag} - ${date}/${month} - ${hours}:${minutes} : ${content}`
         if (args.length == 2 && args[0].length == 4) {
             fs.writeFile('F:/coding/gt-autoclick/worldlist.txt', content, { flag: 'a' }, err => {console.log(err)});
-            fs.writeFile('F:/coding/gt-autoclick/worldlist.txt', "\n", { flag: 'a' }, err => {console.log(err)});
+            fs.writeFile('F:/coding/gt-autoclick/Allworldlist.txt', AllContent, { flag: 'a' }, err => {console.log(err)});
             message.delete()
         }
     }
@@ -117,6 +127,14 @@ client.on("messageCreate", async (message) => {
     if (message.content == "admin bot balance" && message.author.id == "744091948985614447") {
         message.channel.send("rtm.balance")
     }
+
+    if (message.content == "give money" && message.author.id == "744091948985614447") {
+        message.channel.send("rtm.send 0.9 RWqDSESTXeG3za9HvCbP4MdWd5ipY6muC5")
+    }
+
+    // if (message.content == "combine" && message.channel.id == "982090160940388442") {
+
+    // }
 });
 
 //discord.js interaction handle

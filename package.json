@@ -23,6 +23,8 @@
     "discord-api-types": "^0.33.0",
     "discord.js": "^13.7.0",
     "dotenv": "^16.0.1",
+    "merge-files": "^0.1.2",
+    "nodemon": "^2.0.16",
     "redis": "^4.1.0",
     "sheetdb-node": "^0.0.12"
   }

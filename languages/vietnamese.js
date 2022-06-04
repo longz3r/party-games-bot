@@ -62,6 +62,10 @@ function diceEmbed(dice, round, betAmount, userID, choice, avatarURL) {
         choice = "xỉu"
     } else if (choice == "tai") {
         choice = "tài"
+    } else if (choice == "le") {
+        choice = "lẻ"
+    } else if (choice == "chan") {
+        choice = "chẵn"
     }
     const embed = {
         color: "#08B2E3",
