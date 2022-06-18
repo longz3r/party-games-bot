@@ -1,5 +1,5 @@
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageActionRow, MessageButton } = require('discord.js');
 
 function createUser(amount) {
     return (`Tài khoản đã được tạo với số tiền ban đầu là ${amount} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@954355946065375242> <số tiền>")}`)
@@ -14,7 +14,7 @@ function balance(balance) {
 }
 
 function balanceNotEnough(currentBalance) {
-    return (`Số dư tài khoản của bạn không đủ để đặt cược. Bạn đang có ${bold(currentBalance)} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@954355946065375242> <số tiền>")}`)
+    return (`Số dư tài khoản của bạn không đủ để thực hiện. Bạn đang có ${bold(currentBalance)} RTM\nBạn có thể nạp tiền bằng cách sử dụng: ${bold("rtm.send <@954355946065375242> <số tiền>")}`)
 }
 
 function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
@@ -114,6 +114,119 @@ function otherUserBalance(userID, balance) {
     return (`Số dư của <@${userID}> là ${bold(balance)} RTM`)
 }
 
+function withdrawAddressChange(address) {
+    return ("Địa chỉ ví RTM mới của bạn là: " + "`" + address + "`")
+}
+
+function withdrawConfirmation(amount, address) {
+    const embed = {
+        color: "#08B2E3",
+        title: "Xác nhận lệnh rút tiền",
+        description: "Vui lòng xác nhận lệnh rút tiền của bạn bằng cách ấn nút bên dưới \nChúng tôi sẽ không chịu trách nhiệm nếu sai địa chỉ",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Số lượng",
+                value: "`" + amount + " RTM`",
+                inline: true
+            },
+            {
+                name: "Địa chỉ",
+                value: "`" + address + "`",
+                inline: true,
+            },
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true    ,
+            },
+            {
+                name: 'Phí (5%)',
+                value: "`" + (amount * 0.05) + " RTM`",
+                inline: false,
+            },
+            {
+                name: 'Số lượng cuối cùng',
+                value: "`" + (amount - (amount * 0.05)) + " RTM`",
+            }
+        ],
+        footer: {
+            text: 'Hành động này sẽ bị huỷ sau 60 giây\nParty Games developed by Long Zer',
+        },
+    }
+    return embed
+}
+
+function withdrawConfirmationButton() {
+    const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('confirm')
+					.setLabel('Xác nhận')
+					.setStyle('SUCCESS')
+                    .setEmoji("✅"),
+                new MessageButton()
+                    .setCustomId('cancel')
+                    .setLabel('Huỷ')
+                    .setStyle('DANGER')
+                    .setEmoji("❎")
+		)
+    return row
+}
+
+function withdrawConfirmed(amount, address) {
+    const embed = {
+        color: "#000FF00",
+        title: "Lệnh rút tiền đã được xác nhận",
+        description: "Lệnh rút tiền của bạn đã được xác nhận",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Địa chỉ",
+                value: "`" + address + "`",
+                inline: false,
+            },
+            {
+                name: "Số lượng",
+                value: "`" + (amount - (amount * 0.05)) + " RTM`",
+                inline: true
+            },
+        ],
+        footer: {
+            text: 'Bạn sẽ nhận được trong 24 giờ\nParty Games developed by Long Zer',
+        },
+    }
+    return embed
+}
+
+function withdrawCancelled() {
+    const embed = {
+        color: "#FF0000",
+        title: "Lệnh rút tiền đã bị hủy",
+        description: "Lệnh rút tiền của bạn đã bị huỷ",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        footer: {
+            text: 'Party Games developed by Long Zer',
+        },
+    }
+    return embed
+}
+
+function withdrawDM(amount, address, txid) {
+    const embed = {
+        color: "#08B2E3",
+        title: "Lệnh rút tiền đã được hoàn thành",
+        description: amount,
+    }
+    return embed
+}
+
 module.exports = { createUser,
     napTien,
     balance,
@@ -122,5 +235,11 @@ module.exports = { createUser,
     timeout,
     diceEmbed,
     helpEmbed,
-    otherUserBalance
+    otherUserBalance,
+    withdrawAddressChange,
+    withdrawConfirmation,
+    withdrawConfirmationButton,
+    withdrawConfirmed,
+    withdrawCancelled,
+    withdrawDM,
 }

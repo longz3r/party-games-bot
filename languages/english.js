@@ -1,4 +1,5 @@
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
+const { MessageActionRow, MessageButton } = require('discord.js');
 
 function createUser(amount) {
     return (`Your account is created with balance is ${amount} RTM\nYou can add balance to account by using: ${bold("rtm.send <@965473856628342814> <amount>")}`)
@@ -13,7 +14,7 @@ function balance(balance) {
 }
 
 function balanceNotEnough(currentBalance) {
-    return (`You don't have enough balance to place bet. Your current balance is ${bold(currentBalance)} RTM\nYou can add balance to account by using: ${bold("rtm.send <@954355946065375242> <amount>")}`)
+    return (`You don't have enough balance to execute this command. Your current balance is ${bold(currentBalance)} RTM\nYou can add balance to account by using: ${bold("rtm.send <@954355946065375242> <amount>")}`)
 }
 
 function timeout(lastMessage, currentTime) {
@@ -114,8 +115,112 @@ function helpEmbed() {
     return embed
 }
 
+function withdrawAddressChange(address) {
+    return ("Your new RTM withdraw address is " + "`" + address + "`")
+}
+
 function otherUserBalance(userID, balance) {
     return (`<@${userID}>'s balance is ${bold(balance)} RTM`)
+}
+
+function withdrawConfirmation(amount, address) {
+    const embed = {
+        color: "#08B2E3",
+        title: "Withdrawal Confirmation",
+        description: "Please confirm your withdraw request by clicking the button below \n We won't be responsible for invalid address",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Amount",
+                value: "`" + amount + " RTM`",
+                inline: true
+            },
+            {
+                name: "Address",
+                value: "`" + address + "`",
+                inline: true,
+            },
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true    ,
+            },
+            {
+                name: 'Fee (5%)',
+                value: "`" + (amount * 0.05) + " RTM`",
+                inline: false,
+            },
+            {
+                name: 'Final amount',
+                value: "`" + (amount - (amount * 0.05)) + " RTM`",
+            }
+        ],
+        footer: {
+            text: 'Your action will be canceled after 60 seconds\nParty Games developed by Long Zer',
+        },
+    }
+    return embed
+}
+
+function withdrawConfirmationButton() {
+    const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('confirm')
+					.setLabel('Confirm')
+					.setStyle('SUCCESS')
+                    .setEmoji("✅"),
+                new MessageButton()
+                    .setCustomId('cancel')
+                    .setLabel('Cancel')
+                    .setStyle('DANGER')
+                    .setEmoji("❎")
+		)
+    return row
+}
+
+function withdrawConfirmed(amount, address) {
+    const embed = {
+        color: "#000FF00",
+        title: "Withdrawal confirmed",
+        description: "Your withdraw request has been confirmed",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Address",
+                value: "`" + address + "`",
+                inline: false,
+            },
+            {
+                name: "Amount",
+                value: "`" + (amount - (amount * 0.05)) + " RTM`",
+                inline: true
+            },
+        ],
+        footer: {
+            text: 'You will receive in 1-24 hours\nParty Games developed by Long Zer',
+        },
+    }
+    return embed
+}
+
+function withdrawCancelled() {
+    const embed = {
+        color: "#FF0000",
+        title: "Withdrawal canceled",
+        description: "Your withdraw request has been canceled",
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        footer: {
+            text: 'Party Games developed by Long Zer',
+        },
+    }
+    return embed
 }
 
 module.exports = { createUser,
@@ -126,5 +231,10 @@ module.exports = { createUser,
     timeout,
     diceEmbed,
     helpEmbed,
-    otherUserBalance
+    otherUserBalance,
+    withdrawAddressChange,
+    withdrawConfirmation,
+    withdrawConfirmationButton,
+    withdrawConfirmed,
+    withdrawCancelled
 }

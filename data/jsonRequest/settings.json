@@ -12,6 +12,7 @@
                     "name": "language",
                     "description": "New language",
                     "type": 3,
+                    "required": true,
                     "choices": [
                         {
                             "name": "vi",
@@ -22,6 +23,19 @@
                             "value": "en"
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "name": "withdrawaddress",
+            "description": "Change your withdraw address",
+            "type": 1,
+            "options": [
+                {
+                    "name": "address",
+                    "description": "New RTM withdraw address",
+                    "type": 3,
+                    "required": true
                 }
             ]
         }
