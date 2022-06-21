@@ -8,6 +8,7 @@ const client = new Client({ partials: ["CHANNEL"], intents: [
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     Intents.FLAGS.DIRECT_MESSAGES,
 ] });
+const { MessageActionRow, MessageButton } = require('discord.js');
 client.login(config.token);
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
 
@@ -54,20 +55,22 @@ function nat(n) {
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     if (message.content.startsWith("rtm.send")) {
-            var userLanguage = await userInteraction.getLanguage(message.author.id);
+            let userLanguage = await userInteraction.getLanguage(message.author.id);
+            console.log("here2")
             let args = message.content.split(/\s+/);
             args.shift();
             //args processing
             var processedArgs = []
-            if (args[0] == "<@965473856628342814>") {
-                processedArgs[0] = "<@965473856628342814>"
+            if (args[0] == "<@965473856628342814>" || args [0] == "<@954355946065375242>") {
+                processedArgs[0] = "<@954355946065375242>"
                 processedArgs[1] = args[1]
-            } else if (args[1] == "<@965473856628342814>") {
-                processedArgs[0] = "<@965473856628342814>"
+            } else if (args[1] == "<@965473856628342814> || <@954355946065375242>") {
+                processedArgs[0] = "<@954355946065375242>"
                 processedArgs[1] = args[0]
             }
 
             if (processedArgs[0] == "<@965473856628342814>" || processedArgs[0] == "<@954355946065375242>") {
+                console.log("here1")
                 let rtmBalance = await userInteraction.getBalance(message.author.id);
                 let filter = (reaction, user) => user.id === '916225084698550314';
                 const collector = message.createReactionCollector({ filter, time: 5_000 });
@@ -109,7 +112,7 @@ client.on("messageCreate", async (message) => {
     if (message.content.startsWith("pg")) {
         var unixTime = Math.floor(Date.now());
         var lastUserCommand = timeout.get(message.author.id);
-        var userLanguage = await userInteraction.getLanguage(message.author.id);
+        let userLanguage = await userInteraction.getLanguage(message.author.id);
 
 
         if (unixTime - lastUserCommand <= 5000) {
@@ -136,13 +139,29 @@ client.on("messageCreate", async (message) => {
     }
 
     if (message.channel.type == 'DM' && message.author.id == 744091948985614447) {
+        let userLanguage = await userInteraction.getLanguage(message.author.id);
         let args = message.content.split(/\s+/);
         // 1. id
         // 2. so luong
         // 3. dia chi
         // 4. tx id
-        target = await client.users.fetch(args[0]);
-        target.send({embeds: [vi.withdrawDM(args[1], args[2], args[3])]});
+        if (args.length != 4) {
+            message.reply("require more args\nid\nso luong\ndia chi\ntx id")
+        } else {
+            target = await client.users.fetch(args[0]);
+            const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setLabel('TX Link')
+					.setStyle('LINK')
+                    .setURL("https://explorer.raptoreum.com/tx/" + args[3])
+		    )
+            if (userLanguage == "vi") {
+                target.send({ embeds: [vi.withdrawDM(args[1], args[2], args[3])], components: [row] });
+            } else {
+                target.send({ embeds: [en.withdrawDM(args[1], args[2], args[3])], components: [row] });
+            }
+        }
     }
 });
 

@@ -223,6 +223,28 @@ function withdrawCancelled() {
     return embed
 }
 
+function withdrawDM(amount, address, txid) {
+    const embed = {
+        color: "#08B2E3",
+        title: "Your withdrawal request completed",
+        description: `Your withdrawal request completed`,
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Address",
+                value: "`" + address + "`",
+            },
+            {
+                name: "TXID",
+                value: "`" + txid + "`",
+            }
+        ]
+    }
+    return embed
+}
+
 module.exports = { createUser,
     napTien,
     balance,
@@ -236,5 +258,6 @@ module.exports = { createUser,
     withdrawConfirmation,
     withdrawConfirmationButton,
     withdrawConfirmed,
-    withdrawCancelled
+    withdrawCancelled,
+    withdrawDM,
 }

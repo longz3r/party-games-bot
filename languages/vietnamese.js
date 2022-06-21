@@ -222,7 +222,20 @@ function withdrawDM(amount, address, txid) {
     const embed = {
         color: "#08B2E3",
         title: "Lệnh rút tiền đã được hoàn thành",
-        description: amount,
+        description: `${amount} da duoc gui (ko biet cai unikey tren linux)`,
+        thumbnail: {
+            url: "https://i.imgur.com/PNyjWYq.png"
+        },
+        fields: [
+            {
+                name: "Address",
+                value: "`" + address + "`",
+            },
+            {
+                name: "TXID",
+                value: "`" + txid + "`",
+            }
+        ]
     }
     return embed
 }
