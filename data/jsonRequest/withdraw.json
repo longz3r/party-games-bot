@@ -1,0 +1,13 @@
+{
+    "name": "withdraw",
+    "type": 1,
+    "description": "Withdraw RTM from your current balance to RTM wallet",
+    "options": [
+        {
+            "name": "amount",
+            "description": "Amount you want to withdraw",
+            "type": 4,
+            "required": true       
+        }
+    ]
+}

@@ -1,0 +1,43 @@
+{
+    "name": "settings",
+    "type": 1,
+    "description": "Configure your personal settings",
+    "options": [
+        {
+            "name": "language",
+            "description": "Change your preferred language",
+            "type": 1,
+            "options": [
+                {
+                    "name": "language",
+                    "description": "New language",
+                    "type": 3,
+                    "required": true,
+                    "choices": [
+                        {
+                            "name": "vi",
+                            "value": "vi"
+                        },
+                        {
+                            "name": "en",
+                            "value": "en"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "withdrawaddress",
+            "description": "Change your withdraw address",
+            "type": 1,
+            "options": [
+                {
+                    "name": "address",
+                    "description": "New RTM withdraw address",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}

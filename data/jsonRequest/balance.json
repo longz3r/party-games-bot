@@ -1,0 +1,13 @@
+{
+    "name": "balance",
+    "type": 1,
+    "description": "Response with your current balance or another user",
+    "options": [
+        {
+            "name": "user",
+            "description": "User you want to check balance",
+            "type": 6,
+            "required": false         
+        }
+    ]
+}
