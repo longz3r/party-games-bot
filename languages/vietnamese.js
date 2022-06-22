@@ -6,7 +6,7 @@ function createUser(amount) {
 }
 
 function napTien(amount, newBalance) {
-    return (`Bạn đã nạp ${amount} vào tài khoản\nTài khoản hiện tại là: ${bold(newBalance)} RTM`)
+    return (`Bạn đã nạp ${bold(amount)} RTM vào tài khoản\nTài khoản hiện tại là: ${bold(newBalance)} RTM`)
 }
 
 function balance(balance) {
