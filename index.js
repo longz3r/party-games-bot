@@ -9,6 +9,7 @@ const client = new Client({ partials: ["CHANNEL"], intents: [
     Intents.FLAGS.DIRECT_MESSAGES,
 ] });
 const { MessageActionRow, MessageButton } = require('discord.js');
+console.time("login")
 client.login(config.token);
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('@discordjs/builders');
 
@@ -23,6 +24,7 @@ const redis = redisDB.createClient({
 //bot start
 client.on('ready', async () => {
     console.log("Ready!");
+    console.timeEnd("login")
     await redis.connect()
     client.user.setActivity("slash commands available", { type: "WATCHING" });
 })
@@ -61,16 +63,16 @@ client.on("messageCreate", async (message) => {
             args.shift();
             //args processing
             var processedArgs = []
-            if (args[0] == "<@965473856628342814>" || args [0] == "<@954355946065375242>") {
+            if (args [0] == "<@954355946065375242>") {
                 processedArgs[0] = "<@954355946065375242>"
                 processedArgs[1] = args[1]
-            } else if (args[1] == "<@965473856628342814> || <@954355946065375242>") {
+            } else if (args[1] == "<@954355946065375242>") {
                 processedArgs[0] = "<@954355946065375242>"
                 processedArgs[1] = args[0]
             }
 
-            if (processedArgs[0] == "<@965473856628342814>" || processedArgs[0] == "<@954355946065375242>") {
-                console.log("here1")
+            if (processedArgs[0] == "<@954355946065375242>") {
+                console.log(processedArgs)
                 let rtmBalance = await userInteraction.getBalance(message.author.id);
                 let filter = (reaction, user) => user.id === '916225084698550314';
                 const collector = message.createReactionCollector({ filter, time: 5_000 });
@@ -130,12 +132,14 @@ client.on("messageCreate", async (message) => {
             }
         }
     } // cuoi check timeout
-    if (message.content == "admin bot balance" && message.author.id == "744091948985614447") {
+    if (message.content == "balance" && message.author.id == "744091948985614447") {
         message.channel.send("rtm.balance")
     }
 
-    if (message.content == "give money" && message.author.id == "744091948985614447") {
-        message.channel.send("rtm.send 0.9 RWqDSESTXeG3za9HvCbP4MdWd5ipY6muC5")
+    if (message.content.startsWith("give") && message.author.id == "744091948985614447") {
+        let args = message.content.split(/\s+/)
+        args.shift()
+        message.channel.send("rtm.send " + args[0] + " <@744091948985614447>")
     }
 
     if (message.channel.type == 'DM' && message.author.id == 744091948985614447) {
@@ -168,7 +172,9 @@ client.on("messageCreate", async (message) => {
 //discord.js interaction handle
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isCommand()) {
+        console.time("lang")
         var userLanguage = await userInteraction.getLanguage(interaction.user.id)
+        console.timeEnd("lang")
         switch (interaction.commandName) {
             case "balance":
                 if (await userInteraction.getBalance(interaction.user.id) == null) {
