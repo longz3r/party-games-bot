@@ -22,6 +22,10 @@ function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
         resulttx = bold("Xỉu")
     } else if (resulttx == "tai") {
         resulttx = bold("Tài")
+    } else if (resulttx == "chan") {
+        resulttx = bold("Chẵn")
+    } else if (resulttx == "le") {
+        resulttx = bold("Lẻ")
     }
     amount = bold(amount)
 

@@ -35,9 +35,9 @@ function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
     } else if (resulttx == "tai") {
         resulttx = bold("Tài")
     } else if (resulttx == "chan") {
-        resulttx = bold("Chẵn")
+        resulttx = bold("Even")
     } else if (resulttx == "le") {
-        resulttx = bold("Lẻ")
+        resulttx = bold("Odd")
     }
 
     amount = bold(amount)
