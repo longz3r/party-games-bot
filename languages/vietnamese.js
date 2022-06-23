@@ -22,6 +22,10 @@ function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
         resulttx = bold("Xỉu")
     } else if (resulttx == "tai") {
         resulttx = bold("Tài")
+    } else if (resulttx == "chan") {
+        resulttx = bold("Chẵn")
+    } else if (resulttx == "le") {
+        resulttx = bold("Lẻ")
     }
     amount = bold(amount)
 
@@ -54,7 +58,7 @@ function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
 }
 
 function timeout(lastMessage, currentTime) {
-    return (`Vui lòng đợi ${bold((5000 - (currentTime - lastMessage)) / 1000)} giây trước khi thực hiện câu lệnh tiếp theo`)
+    return (`Vui lòng đợi ${bold((4000 - (currentTime - lastMessage)) / 1000)} giây trước khi thực hiện câu lệnh tiếp theo`)
 }
 
 function diceEmbed(dice, round, betAmount, userID, choice, avatarURL) {

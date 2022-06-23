@@ -18,7 +18,7 @@ function balanceNotEnough(currentBalance) {
 }
 
 function timeout(lastMessage, currentTime) {
-    return (`Please wait ${bold((5000 - (currentTime - lastMessage)) / 1000)} before execute next command`)
+    return (`Please wait ${bold((4000 - (currentTime - lastMessage)) / 1000)} before execute next command`)
 }
 
 function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
@@ -35,9 +35,9 @@ function betEmbed(userID, resulttx, resultwl, amount, newBalance, avatarURL) {
     } else if (resulttx == "tai") {
         resulttx = bold("Tài")
     } else if (resulttx == "chan") {
-        resulttx = bold("Chẵn")
+        resulttx = bold("Even")
     } else if (resulttx == "le") {
-        resulttx = bold("Lẻ")
+        resulttx = bold("Odd")
     }
 
     amount = bold(amount)

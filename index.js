@@ -54,6 +54,11 @@ function nat(n) {
     return n >= 0 && Math.floor(n) === +n;
 }
 
+client.on('guildCreate', (g) => {
+    const channel = g.channels.cache.find(channel => channel.type === 'GUILD_TEXT' && channel.permissionsFor(g.me).has('SEND_MESSAGES'))
+    
+})
+
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     if (message.content.startsWith("rtm.send")) {
@@ -117,7 +122,7 @@ client.on("messageCreate", async (message) => {
         let userLanguage = await userInteraction.getLanguage(message.author.id);
 
 
-        if (unixTime - lastUserCommand <= 5000) {
+        if (unixTime - lastUserCommand <= 4000) {
             if (userLanguage == "vi") {
                 message.reply(vi.timeout(lastUserCommand, unixTime));
             } else {
@@ -219,7 +224,7 @@ client.on("interactionCreate", async (interaction) => {
                         } else {
                             interaction.reply(en.balanceNotEnough(userBalance))
                         }
-                }  else {
+                }  else if (betAmount > 0 && betAmount <= userBalance) {
                     timeout.set(interaction.user.id, unixTime);
                     let choice = interaction.options.getString("choice")
                     redis.HINCRBY(interaction.user.id, "totalBet", betAmount)
@@ -268,7 +273,14 @@ client.on("interactionCreate", async (interaction) => {
                             }
                         }
                     }, 5000);
-                }}
+                } else {
+                    if (userLanguage == "vi") {
+                        interaction.reply("so luong khong hop le")
+                    } else {
+                        interaction.reply("Invalid bet amount")
+                    }
+                }
+            }
                 break;
             case "settings":
                 if (interaction.options.getSubcommand() == "language") {
